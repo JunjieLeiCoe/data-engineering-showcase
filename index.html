@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Junjie Lei — Data Engineering</title>
+<meta name="description" content="Junjie Lei — data engineering showcase: ETL & Airflow pipelines for organizations across the US." />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;font-family:'Inter',-apple-system,sans-serif;background:#0b0f1a;color:#e7ecf5;}
+  #map{position:absolute;inset:0;background:#0b0f1a;}
+  .leaflet-container{background:#0b0f1a;}
+  .leaflet-tile{filter:saturate(1.05) brightness(1.02);}
+
+  .pulse{display:block;width:12px;height:12px;border-radius:50%;background:var(--c);
+    box-shadow:0 0 10px 2px var(--c);position:relative;}
+  .pulse::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--c);
+    opacity:.6;animation:ring 2.6s ease-out infinite;}
+  @keyframes ring{0%{transform:scale(.55);opacity:.75}100%{transform:scale(2.6);opacity:0}}
+
+  .star{display:block;width:22px;height:22px;line-height:22px;text-align:center;font-size:19px;
+    color:var(--c);text-shadow:0 0 8px var(--c),0 0 16px var(--c);animation:tw 3.2s ease-in-out infinite;}
+  @keyframes tw{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.18);opacity:1}}
+
+  .diamond{display:block;width:13px;height:13px;background:var(--c);transform:rotate(45deg);
+    box-shadow:0 0 10px 2px var(--c);border:1px solid rgba(255,255,255,.45);}
+
+  .panel{position:absolute;z-index:1000;background:rgba(16,22,40,.62);
+    backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);
+    border:1px solid rgba(255,255,255,.10);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.45);}
+
+  .title{top:22px;left:22px;padding:20px 24px;max-width:350px;animation:rise .8s cubic-bezier(.2,.8,.2,1) both;}
+  .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7aa2d6;font-weight:600;margin:0 0 7px;}
+  .title h1{margin:0;font-size:26px;font-weight:700;line-height:1.14;
+    background:linear-gradient(120deg,#fff,#9fc6ff 55%,#fbbf24);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .title p{margin:9px 0 0;font-size:13px;line-height:1.55;color:#aebbd2;font-weight:300;}
+
+  .legend{bottom:22px;left:22px;padding:14px 16px;animation:rise 1s cubic-bezier(.2,.8,.2,1) both;}
+  .legend .hd{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#7f93b3;margin-bottom:10px;}
+  .legend .row{display:flex;align-items:center;gap:11px;margin:7px 0;font-size:13px;color:#d4dcec;
+    cursor:pointer;user-select:none;padding:3px 6px;border-radius:8px;transition:background .15s, opacity .15s;}
+  .legend .row:hover{background:rgba(255,255,255,.06);}
+  .legend .row.off{opacity:.38;}
+  .legend .row.off .swatch{box-shadow:none;background:transparent!important;border:1.5px solid currentColor;}
+  .swatch{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:0 0 9px currentColor;}
+  .legend .cnt{margin-left:auto;font-variant-numeric:tabular-nums;color:#8aa0c0;font-size:12px;padding-left:16px;}
+  .legend .ft{margin-top:11px;border-top:1px solid rgba(255,255,255,.10);padding-top:9px;font-size:12px;color:#9fb0cc;}
+  .legend .ft b{color:#e7ecf5;font-weight:600;}
+
+  .featured{top:22px;right:22px;padding:15px 17px;max-width:280px;animation:rise 1.1s cubic-bezier(.2,.8,.2,1) both;}
+  .featured .hd{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#d9b25a;margin-bottom:11px;display:flex;align-items:center;gap:7px;}
+  .featured .hd::before{content:"★";color:#fbbf24;text-shadow:0 0 8px #fbbf24;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;max-height:46vh;overflow:auto;}
+  .chip{font-size:12px;color:#f3e6c4;background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.30);
+    padding:4px 10px;border-radius:20px;white-space:nowrap;}
+
+  .leaflet-tooltip.tip{background:rgba(10,14,28,.92);border:1px solid rgba(255,255,255,.16);
+    color:#fff;border-radius:8px;font:500 12px Inter,sans-serif;padding:4px 9px;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+  .leaflet-tooltip.tip.gold{border-color:rgba(251,191,36,.55);color:#fde7b8;}
+  .leaflet-tooltip.tip.cyan{border-color:rgba(34,211,238,.55);color:#bdf3fb;}
+  .leaflet-tooltip.tip::before{display:none;}
+  .leaflet-control-attribution{background:rgba(11,15,26,.6)!important;color:#566!important;}
+  .leaflet-control-attribution a{color:#7aa2d6!important;}
+  .leaflet-bar a{background:#161d2e;color:#cdd8ee;border-color:rgba(255,255,255,.08);}
+  .leaflet-bar a:hover{background:#1e2740;}
+
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @media(max-width:760px){
+    .title{max-width:72vw;padding:15px 17px;}.title h1{font-size:19px;}
+    .featured{display:none;}}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div class="panel title">
+  <p class="eyebrow"></p>
+  <h1></h1>
+  <p></p>
+</div>
+
+<div class="panel featured">
+  <div class="hd">Featured Clients</div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<div class="panel legend">
+  <div class="hd">Sectors · tap to filter</div>
+  <div id="rows"></div>
+  <div class="ft"><b id="total">0</b> organizations mapped · <b id="statVal"></b> <span id="statLbl"></span></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data.js"></script>
+<script>
+const D = window.SHOWCASE || {categories:[],meta:{}};
+const CATS = D.categories;
+const M = D.meta || {};
+
+// header text from data.js meta
+document.querySelector(".title .eyebrow").textContent = M.eyebrow || "";
+document.querySelector(".title h1").textContent = M.title || "";
+document.querySelector(".title p").textContent = M.subtitle || "";
+document.getElementById("statVal").textContent = M.statValue || "";
+document.getElementById("statLbl").textContent = M.statLabel || "";
+
+const map = L.map("map",{zoomControl:false,attributionControl:true,zoomSnap:0.25}).setView([39,-98],4);
+L.control.zoom({position:"bottomright"}).addTo(map);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
+  attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:19, subdomains:"abcd"
+}).addTo(map);
+
+function pulseIcon(color){return L.divIcon({className:"",iconSize:[12,12],iconAnchor:[6,6],html:`<span class="pulse" style="--c:${color}"></span>`});}
+function starIcon(color){return L.divIcon({className:"",iconSize:[22,22],iconAnchor:[11,11],html:`<span class="star" style="--c:${color}">★</span>`});}
+function diamondIcon(color){return L.divIcon({className:"",iconSize:[15,15],iconAnchor:[7,7],html:`<span class="diamond" style="--c:${color}"></span>`});}
+
+const layers={}, bounds=[], chips=[];
+let total=0;
+CATS.forEach(c=>{
+  const grp=L.layerGroup();
+  (c.pts||[]).forEach(p=>{
+    const lat=p[0],lng=p[1],name=p[2];
+    bounds.push([lat,lng]); total++;
+    let icon, tipClass;
+    if(c.key==="enterprise"){ icon=starIcon(c.color); tipClass="tip gold"; }
+    else if(c.key==="pipeline"){ icon=diamondIcon(c.color); tipClass="tip cyan"; }
+    else { icon=pulseIcon(c.color); tipClass="tip"; }
+    const label = c.named ? name : c.label;
+    L.marker([lat,lng],{icon}).bindTooltip(label,{className:tipClass,direction:"top",offset:[0,-11]}).addTo(grp);
+    if(c.key==="enterprise") chips.push(name);
+  });
+  grp.addTo(map); layers[c.key]=grp;
+});
+
+// default to the continental US (exclude Alaska/outliers so the lower-48 fills the screen)
+const usBounds = bounds.filter(b => b[1] > -130 && b[0] < 50);
+function fitUS(){ if(usBounds.length) map.fitBounds(usBounds,{padding:[12,12]}); }
+fitUS(); window.addEventListener("resize", fitUS);
+
+document.getElementById("chips").innerHTML = chips.map(n=>`<span class="chip">${n}</span>`).join("");
+
+const rows=document.getElementById("rows");
+rows.innerHTML = CATS.map(c=>{
+  let mark;
+  if(c.key==="enterprise") mark=`<span style="color:${c.color};text-shadow:0 0 8px ${c.color};font-size:13px;width:11px;text-align:center">★</span>`;
+  else if(c.key==="pipeline") mark=`<span style="width:10px;height:10px;background:${c.color};transform:rotate(45deg);box-shadow:0 0 8px ${c.color};flex:none;display:inline-block;margin:0 1px"></span>`;
+  else mark=`<span class="swatch" style="background:${c.color}"></span>`;
+  return `<div class="row" data-k="${c.key}" style="color:${c.color}">${mark}<span style="color:#d4dcec">${c.label}</span><span class="cnt">${(c.pts||[]).length}</span></div>`;
+}).join("");
+document.getElementById("total").textContent = total;
+
+rows.querySelectorAll(".row").forEach(row=>{
+  row.addEventListener("click",()=>{
+    const k=row.dataset.k, on=row.classList.toggle("off");
+    if(on) map.removeLayer(layers[k]); else layers[k].addTo(map);
+  });
+});
+</script>
+</body>
+</html>
