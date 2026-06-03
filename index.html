@@ -132,7 +132,7 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data.js"></script>
+<script>document.write('<script src="data.js?v='+Math.floor(Date.now()/600000)+'"><\/script>')</script>
 <script>
 const D = window.SHOWCASE || {categories:[],meta:{}};
 const CATS = D.categories;
