@@ -160,13 +160,14 @@ let total=0;
 CATS.forEach(c=>{
   const grp=L.layerGroup();
   (c.pts||[]).forEach(p=>{
-    const lat=p[0],lng=p[1],name=p[2];
+    const lat=p[0],lng=p[1],name=p[2],rec=p[3];
     bounds.push([lat,lng]); total++;
     let icon, tipClass;
     if(c.key==="enterprise"){ icon=starIcon(c.color); tipClass="tip gold"; }
     else if(c.key==="pipeline"){ icon=diamondIcon(c.color); tipClass="tip cyan"; }
     else { icon=pulseIcon(c.color); tipClass="tip"; }
-    const label = c.named ? name : c.label;
+    let label = c.named ? name : c.label;
+    if(c.named && rec) label = `${name} &middot; ${Number(rec).toLocaleString()} records`;
     L.marker([lat,lng],{icon}).bindTooltip(label,{className:tipClass,direction:"top",offset:[0,-11]}).addTo(grp);
     if(c.key==="enterprise") chips.push(name);
   });
