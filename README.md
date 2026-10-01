@@ -4,7 +4,7 @@ An interactive map of the organizations I've built ETL / data-engineering pipeli
 
 **Live:** https://junjieleicoe.github.io/data-engineering-showcase/
 
-![layers](https://img.shields.io/badge/layers-6-22d3ee) ![pipelines](https://img.shields.io/badge/ETL%20pipelines-120%2B-fbbf24)
+![layers](https://img.shields.io/badge/layers-6-22d3ee) ![pipelines](https://img.shields.io/badge/ETL%20pipelines-140%2B-fbbf24)
 
 ## What it is
 A single-page Leaflet map (no build step) showing client engagements grouped into layers:

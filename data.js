@@ -8,13 +8,13 @@
                   skill only processes NEW client folders next run.
    ============================================================ */
 window.SHOWCASE = {
-  generatedAt: "2026-06-16",
+  generatedAt: "2026-09-30",
   meta: {
     eyebrow:   "Junjie Lei · Data Engineering",
-    title:     "120+ Pipelines, Coast to Coast",
+    title:     "140+ Pipelines, Coast to Coast",
     subtitle:  "Data engineering & ETL workflows processing payroll, census & compliance data — from city governments to national brands.",
     statLabel: "ETL pipelines built",
-    statValue: "120+"
+    statValue: "140+"
   },
   categories: [
     { key:"municipal", label:"Municipal", color:"#38bdf8", pts:[
@@ -153,9 +153,31 @@ window.SHOWCASE = {
       [30.2459,-97.8536,"Campus Life & Style, LLC"],
       [38.6426,-90.3334,"Paule, Camazine & Blumenthal",2207],
       [38.7881,-90.4974,"Green Clean Commercial",2086],
-      [32.6907,-117.1311,"Williams Signal",4997] ]},
+      [32.6907,-117.1311,"Williams Signal",4997],
+      [39.7235,-104.9225,"Ascent Living Communities (ALC Hilltop)",20577],
+      [30.2390,-91.9900,"Acadiana Waste Services",12205],
+      [40.7790,-73.8455,"Atlantic Dialysis Management Services",8134],
+      [42.0898,-76.8077,"Community Health System Services",12328],
+      [29.4541,-98.4636,"Flasher Equipment Company",19927],
+      [33.3960,-84.7100,"Freshrise (DoughRollers)",4689],
+      [45.1386,-90.3402,"Gowey Abstract & Title",9921],
+      [37.3312,-121.8575,"Hanoi Bistro (Pho Hanoi)",2573],
+      [33.8345,-118.3090,"Kintetsu Enterprises Co. of America",766],
+      [36.1590,-115.1010,"LML Enterprises / La Mojarra Loca",57679],
+      [36.6770,-93.8688,"License Office Services",175],
+      [27.5214,-82.5723,"PTG Management (Pacific Tomato Growers)",75370],
+      [40.7357,-74.1724,"Proper Hospitality Solutions (WNC Laundry)",1115],
+      [40.0790,-74.2000,"Royal Community Support",31341],
+      [40.6782,-73.9442,"Smilo Group (Brooklyn Wax Holdings)",37708],
+      [32.2226,-110.9747,"Elite Community Services",18574],
+      [35.0844,-106.6504,"Devoted Guardians",44080],
+      [36.7380,-119.5557,"City of Sanger",362],
+      [31.7619,-106.4850,"El Paso Cardiology Associates",20977],
+      [38.8273,-91.0201,"Gateway Fiber",4271],
+      [40.5432,-74.3632,"Quality Security Services",21778],
+      [47.6062,-122.3321,"Redside Partners",3569] ]},
   ],
   // every r-workspace folder already triaged (added or intentionally skipped).
   // The skill diffs the live folder list against this so only NEW folders are processed.
-  knownFolders: [".claude","1. My_Accounts","1. old-Archived-DNU","1736-Family-Crisis","1st_pizza","2023Boyrie","2024_Aegis","2024_EOY_Status","2024_NorthStar_FoodService","2024_RiverOyster","2024_Rogers","2024_Venice_Pizza","2024_evergreen","2024_lotawata_mini","2024_port_ticket","2025_GM_Families","2025_NAB","2025_NAB_Homecare_BenClass","2025_Nautical_Fulfillment","2025_San_Jose_Conservation_Corps","2_input_agents","5Star_Culter_Bay","AMF_Food_inc","Adrian_L_Mertron","Advantage_ind_sys","Aliso Electric Overhaul","Alliegence_Ability","Alpahretta_FBC","AplusSubs","ArrowHead_Lake_Community","Atlas_Security_Services","Aveena_PDF","BCS","BDS_Cons","Baldwin_Park_USD","CA-Sacramento-USD","CBOE","Caresify","CityOfFortBragg-2026","City_of_Pico_Rivera","Clasp - CG105 - Dimitro Group LLC","Clasp-4","Clasp-Clayton-Timbrell","Clasp-Ongoing","Colorrado_Security_Agency","Commonwealth_Hand_Therapy","Compton Community College 2026","Compton-College-CC","DAK","DESKTOP-50RQLQJ","Dominos","East_Orange","EasternStates","Ensign_Staffing","EnterStaffing_2023","EstherSchool","FLT_data_vis report","FPI","FPI_Mgmt","Fine_line","Florida_one_Insurance","Frehner_Masonry_Inc","Fuson","GIVA","Good_Fortune","HART_United","JFS_2025","Kerns_Trucking","LFS","LJC-health_care","LPE&Widmor-2023","Los_Robles","MJG-Corp","MS_Restaurant_Inc_Isolved","Med_Alliance_LLC","Metro Care of Springfield","Mipenico-clasp-CG65","New folder","New folder (2)","Noble_Texas","NorthStar","Nurse_Direct","OSU - test","OSU-payroll-profiling-report","Ocean_Grill","PDF - test","PDF_ESS_Extraction","PDF_test_Security_Sol_America","Palmer Group","PalmerGrp - Rescript","Pena_AG_Inc","Piccola_Cucina","Poly_Tech","PrideHomeCare_2025","Pride_HomeCare","Rezco_Inc","Salem-Keizer-Public-School","San-Jacinto-2023","Sec-Sol-America-20to24","Seminole","Sr_Service_Matt","Star-Academy","TPS_Fam","Taqueria","Taqueria & Tortilleria La Reyna LLC","TheOSU_2024","TheOSU_2025","Turbine_Ops","UFS","United_Airline","Unviersity of St","Valley_Home_Health","Wise-family","Wise_Family_Practice","Workday_new_entity","aPlusSub","archived-completed","chambers-county-public-hospital","city_of_delano","clasp-CG109-CookieCash","clasp-CG88-Forma-Construction","clasp-Engelberth","clasp-accelerated-fire-protection-inc","clasp-consolidated","clasp-core-roofing","clasp-cs-hotel-laurel-hardware","clasp-new-wave","clasp-nickels","clasp-river-city","clasp-walker","clasp_PDF_wolverine_fire","clasp_capitol_excav","clasp_merchant","clasp_pdf","confortaire","data_inspection","davis_construction","demo-parallel","fun-ua-howmanyturns","global_security_concepts","go2Service","harris_scripts","lotawata_creek_2024_rscript","mgmt","mid_nebraska_rescript","miniscript - payroll _ vis","miniscript-enterprise","osu_data_inspection","osu_wam_admin_inspection","patriot_2024","patriot_careRing_homecare","pdf test","pdf_payroll_journal_secure_sol","pdf_r_tester","pro_assurance","provider-care-homecare","provider-care-homecare-code","request_portal","robinson_staffing_2024","scaramento_vis","southwestern-2022-EOY","southwestern-2023-ReScript","southwestern-2024","synergy_Homecare","test - paychex","test_project","tracker_toy","trash","village_framer","vince_auto_sales_2024","vitable-health","wam-cleanse-tui","wam-replacement","wills_invstments_grp","yard_master_2024","zuppardos_econ_supermarkets","Daybrook_Fisheries_Inc","campus_life_style","Paule_Camazine","green_clean_commercial_2023","williams_signal_implementation_paychex"]
+  knownFolders: [".claude","1. My_Accounts","1. old-Archived-DNU","1736-Family-Crisis","1st_pizza","2023Boyrie","2024_Aegis","2024_EOY_Status","2024_NorthStar_FoodService","2024_RiverOyster","2024_Rogers","2024_Venice_Pizza","2024_evergreen","2024_lotawata_mini","2024_port_ticket","2025_GM_Families","2025_NAB","2025_NAB_Homecare_BenClass","2025_Nautical_Fulfillment","2025_San_Jose_Conservation_Corps","2_input_agents","5Star_Culter_Bay","AMF_Food_inc","Adrian_L_Mertron","Advantage_ind_sys","Aliso Electric Overhaul","Alliegence_Ability","Alpahretta_FBC","AplusSubs","ArrowHead_Lake_Community","Atlas_Security_Services","Aveena_PDF","BCS","BDS_Cons","Baldwin_Park_USD","CA-Sacramento-USD","CBOE","Caresify","CityOfFortBragg-2026","City_of_Pico_Rivera","Clasp - CG105 - Dimitro Group LLC","Clasp-4","Clasp-Clayton-Timbrell","Clasp-Ongoing","Colorrado_Security_Agency","Commonwealth_Hand_Therapy","Compton Community College 2026","Compton-College-CC","DAK","DESKTOP-50RQLQJ","Dominos","East_Orange","EasternStates","Ensign_Staffing","EnterStaffing_2023","EstherSchool","FLT_data_vis report","FPI","FPI_Mgmt","Fine_line","Florida_one_Insurance","Frehner_Masonry_Inc","Fuson","GIVA","Good_Fortune","HART_United","JFS_2025","Kerns_Trucking","LFS","LJC-health_care","LPE&Widmor-2023","Los_Robles","MJG-Corp","MS_Restaurant_Inc_Isolved","Med_Alliance_LLC","Metro Care of Springfield","Mipenico-clasp-CG65","New folder","New folder (2)","Noble_Texas","NorthStar","Nurse_Direct","OSU - test","OSU-payroll-profiling-report","Ocean_Grill","PDF - test","PDF_ESS_Extraction","PDF_test_Security_Sol_America","Palmer Group","PalmerGrp - Rescript","Pena_AG_Inc","Piccola_Cucina","Poly_Tech","PrideHomeCare_2025","Pride_HomeCare","Rezco_Inc","Salem-Keizer-Public-School","San-Jacinto-2023","Sec-Sol-America-20to24","Seminole","Sr_Service_Matt","Star-Academy","TPS_Fam","Taqueria","Taqueria & Tortilleria La Reyna LLC","TheOSU_2024","TheOSU_2025","Turbine_Ops","UFS","United_Airline","Unviersity of St","Valley_Home_Health","Wise-family","Wise_Family_Practice","Workday_new_entity","aPlusSub","archived-completed","chambers-county-public-hospital","city_of_delano","clasp-CG109-CookieCash","clasp-CG88-Forma-Construction","clasp-Engelberth","clasp-accelerated-fire-protection-inc","clasp-consolidated","clasp-core-roofing","clasp-cs-hotel-laurel-hardware","clasp-new-wave","clasp-nickels","clasp-river-city","clasp-walker","clasp_PDF_wolverine_fire","clasp_capitol_excav","clasp_merchant","clasp_pdf","confortaire","data_inspection","davis_construction","demo-parallel","fun-ua-howmanyturns","global_security_concepts","go2Service","harris_scripts","lotawata_creek_2024_rscript","mgmt","mid_nebraska_rescript","miniscript - payroll _ vis","miniscript-enterprise","osu_data_inspection","osu_wam_admin_inspection","patriot_2024","patriot_careRing_homecare","pdf test","pdf_payroll_journal_secure_sol","pdf_r_tester","pro_assurance","provider-care-homecare","provider-care-homecare-code","request_portal","robinson_staffing_2024","scaramento_vis","southwestern-2022-EOY","southwestern-2023-ReScript","southwestern-2024","synergy_Homecare","test - paychex","test_project","tracker_toy","trash","village_framer","vince_auto_sales_2024","vitable-health","wam-cleanse-tui","wam-replacement","wills_invstments_grp","yard_master_2024","zuppardos_econ_supermarkets","Daybrook_Fisheries_Inc","campus_life_style","Paule_Camazine","green_clean_commercial_2023","williams_signal_implementation_paychex","ALC_Hilltop","Acadiana_water_services","Atlantic_Dialysis","Community_health_Sys_Service","Flasher_Limited","Freshrise_LLC_2024_2025","Gowey_Abstract","Hanoi_Bistro_Inc","Kintetsu","LML_Enterprise_Inc","License_Office_Services","PTG_Mgmt","Proper_Hospitality","Royal_Community_Support","Smilo_Grp_Rscript","Team_service_Grp","city_of_sanger","el_paso","gateway_fiber","quality_security_services","redSide_partner_LLC","account-monthly-audit-redistribution-monthly-report","age-banded-rate-calculator","contract_val","csa_emails","data","personal_emails"]
 };
