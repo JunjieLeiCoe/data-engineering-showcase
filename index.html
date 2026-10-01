@@ -147,9 +147,12 @@ document.getElementById("statLbl").textContent = M.statLabel || "";
 
 const map = L.map("map",{zoomControl:false,attributionControl:true,zoomSnap:0.25}).setView([39,-98],4);
 L.control.zoom({position:"bottomright"}).addTo(map);
-L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
-  attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:19, subdomains:"abcd"
+// Esri dark gray canvas (no API key needed) — base tiles + a labels overlay
+const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/";
+L.tileLayer(ESRI+"World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{
+  attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors', maxZoom:19, maxNativeZoom:16
 }).addTo(map);
+L.tileLayer(ESRI+"World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",{maxZoom:19, maxNativeZoom:16}).addTo(map);
 
 function pulseIcon(color){return L.divIcon({className:"",iconSize:[12,12],iconAnchor:[6,6],html:`<span class="pulse" style="--c:${color}"></span>`});}
 function starIcon(color){return L.divIcon({className:"",iconSize:[22,22],iconAnchor:[11,11],html:`<span class="star" style="--c:${color}">★</span>`});}
