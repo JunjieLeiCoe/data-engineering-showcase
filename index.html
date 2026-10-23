@@ -69,7 +69,10 @@
   .legend .ft b{color:#e7ecf5;font-weight:600;font-variant-numeric:tabular-nums;}
 
   /* ---------- timeline ---------- */
-  .timeline{flex:1;max-width:680px;margin-left:auto;padding:12px 16px 8px;animation:rise 1.2s cubic-bezier(.2,.8,.2,1) both;}
+  .timeline{flex:1;max-width:680px;margin-left:auto;padding:12px 16px 8px;animation:rise 1.2s cubic-bezier(.2,.8,.2,1) both;
+    transition:max-width .35s cubic-bezier(.2,.8,.2,1);}
+  .timeline:not(.pinned){max-width:350px;}
+  .timeline:not(.pinned) .ticker{opacity:0;}
   .tl-top{display:flex;align-items:center;gap:14px;min-height:62px;}
   .play{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid rgba(34,211,238,.45);cursor:pointer;
     background:radial-gradient(circle at 35% 30%,rgba(34,211,238,.35),rgba(34,211,238,.08));color:#e8fbff;
@@ -83,7 +86,7 @@
   .tl-count{flex:none;font-size:11px;color:#8aa0c0;line-height:1.3;letter-spacing:.04em;text-transform:uppercase;}
   .tl-count b{display:block;font-size:20px;color:#e7ecf5;font-weight:700;letter-spacing:0;font-variant-numeric:tabular-nums;}
   .ticker{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px;height:62px;overflow:hidden;
-    justify-content:center;}
+    justify-content:center;transition:opacity .25s;}
   .tick{font-size:11.5px;line-height:17px;color:#d4dcec;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;
     padding:0 9px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);}
   .tick.gold{color:#fde7b8;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.10);}
@@ -98,12 +101,10 @@
     font-size:clamp(64px,9vw,140px);line-height:1;font-weight:800;letter-spacing:-.05em;color:#fff;opacity:.07;
     font-variant-numeric:tabular-nums;}
 
-  .featured{top:22px;right:22px;padding:15px 17px;max-width:290px;animation:rise 1.1s cubic-bezier(.2,.8,.2,1) both;
-    max-height:calc(100vh - 230px);overflow:auto;}
-  .featured .hd{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#d9b25a;margin-bottom:11px;display:flex;align-items:center;gap:7px;}
-  .featured .hd::before{content:"★";color:#fbbf24;text-shadow:0 0 8px #fbbf24;}
+  .featured{top:22px;right:22px;width:290px;animation:rise 1.1s cubic-bezier(.2,.8,.2,1) both;}
+  .featured .pad{padding:2px 17px 15px;max-height:calc(100vh - 250px);overflow:auto;}
+  .featured .hd{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#d9b25a;margin-bottom:9px;display:flex;align-items:center;gap:7px;}
   .featured .hd.ind{color:#7f93b3;margin-top:15px;}
-  .featured .hd.ind::before{content:none;}
   .featured .hd.ind span{margin-left:auto;letter-spacing:.04em;text-transform:none;color:#22d3ee;cursor:pointer;display:none;}
   .chips{display:flex;flex-wrap:wrap;gap:7px;}
   .chip{font-size:12px;color:#f3e6c4;background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.30);
@@ -116,6 +117,31 @@
   .ichip.on{background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.6);color:#e8fbff;}
   .ichip.dim{opacity:.35;}
   .ichip.zero{opacity:.25;}
+
+  /* fold-away panels: collapsed by default, hover to peek (mouse), click the chevron to pin open */
+  .fold-body{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .35s cubic-bezier(.2,.8,.2,1),opacity .25s;}
+  .fold-inner{min-height:0;overflow:hidden;}
+  .foldable.pinned .fold-body{grid-template-rows:1fr;opacity:1;}
+  .chev{width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+    transition:transform .3s;}
+  .foldable.pinned .chev{transform:rotate(180deg);}
+  .timeline .chev{transform:rotate(180deg);}
+  .timeline.pinned .chev{transform:none;}
+  @media(hover:hover){
+    .foldable:hover .fold-body{grid-template-rows:1fr;opacity:1;}
+    .foldable:hover .chev{transform:rotate(180deg);}
+    .timeline:hover{max-width:680px;}
+    .timeline:hover .ticker{opacity:1;}
+    .timeline:hover .chev{transform:none;}
+  }
+  .fold-hd{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;width:100%;padding:13px 17px;cursor:pointer;
+    font:600 10.5px Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#d9b25a;}
+  .fold-hd .star{color:#fbbf24;text-shadow:0 0 8px #fbbf24;letter-spacing:0;font-size:12px;}
+  .fold-hd .chev{margin-left:auto;color:#8aa0c0;}
+  .fold-btn{all:unset;box-sizing:border-box;flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+    color:#8aa0c0;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);transition:all .15s;}
+  .fold-btn:hover,.fold-hd:hover .chev{color:#e8fbff;}
+  .fold-btn:hover{border-color:rgba(34,211,238,.5);}
 
   .leaflet-tooltip.tip{background:rgba(10,14,28,.92);border:1px solid rgba(255,255,255,.16);
     color:#fff;border-radius:8px;font:500 12px Inter,sans-serif;padding:5px 10px;box-shadow:0 4px 16px rgba(0,0,0,.4);}
@@ -136,7 +162,7 @@
   }
   @media(max-width:980px){
     .title{max-width:300px;}
-    .featured{max-width:230px;padding:13px 14px;}
+    .featured{width:240px;}
     .yearmark{display:none;}
   }
 
@@ -155,7 +181,7 @@
 
     /* dock: timeline on top, legend as a full-width bar under it */
     .dock{left:10px;right:10px;bottom:10px;flex-direction:column-reverse;align-items:stretch;gap:8px;}
-    .timeline{max-width:none;margin:0;padding:9px 12px 6px;}
+    .timeline,.timeline:not(.pinned){max-width:none;margin:0;padding:9px 12px 6px;}
     .tl-top{gap:10px;min-height:36px;}
     .ticker{display:none;}
     .play{width:34px;height:34px;}
@@ -195,11 +221,14 @@
   <p class="sub"></p>
 </div>
 
-<div class="panel featured">
-  <div class="hd">Featured Clients</div>
-  <div class="chips" id="chips"></div>
-  <div class="hd ind">Industries <span id="indClear">show all</span></div>
-  <div class="chips" id="inds"></div>
+<div class="panel featured foldable" id="featured">
+  <button class="fold-hd" data-fold aria-expanded="false" title="Click to keep open"><span class="star">★</span>Clients &amp; industries<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5 10 4.5"/></svg></button>
+  <div class="fold-body"><div class="fold-inner"><div class="pad">
+    <div class="hd">Featured Clients</div>
+    <div class="chips" id="chips"></div>
+    <div class="hd ind">Industries <span id="indClear">show all</span></div>
+    <div class="chips" id="inds"></div>
+  </div></div></div>
 </div>
 
 <div class="dock">
@@ -209,14 +238,17 @@
     <div class="ft"><b id="total">0</b> organizations mapped · <b id="statVal"></b> <span id="statLbl"></span></div>
   </div>
 
-  <div class="panel timeline">
+  <div class="panel timeline foldable" id="timeline">
     <div class="tl-top">
       <button class="play" id="play" aria-label="Play timeline"></button>
       <div class="readout"><span class="yr" id="tlYear"></span><span class="mo" id="tlMon"></span></div>
       <div class="tl-count"><b id="tlCount">0</b>clients</div>
       <div class="ticker" id="ticker"></div>
+      <button class="fold-btn" data-fold aria-expanded="false" aria-label="Show timeline chart" title="Click to keep open"><svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5 10 4.5"/></svg></button>
     </div>
-    <svg id="tlChart" aria-label="Clients over time — drag to scrub"></svg>
+    <div class="fold-body"><div class="fold-inner">
+      <svg id="tlChart" aria-label="Clients over time — drag to scrub"></svg>
+    </div></div>
   </div>
 </div>
 
@@ -294,6 +326,14 @@ const usBounds = bounds.filter(b => b[1] > -130 && b[0] < 50);
 function fitUS(){ if(usBounds.length) map.fitBounds(usBounds,{padding:[12,12]}); sizeMarkers(); }
 fitUS(); window.addEventListener("resize", fitUS);
 
+// ---------- fold-away panels ----------
+function pin(panel, on){
+  on = panel.classList.toggle("pinned", on);
+  panel.querySelector("[data-fold]").setAttribute("aria-expanded", on);
+}
+document.querySelectorAll("[data-fold]").forEach(btn=>
+  btn.addEventListener("click",()=>pin(btn.closest(".foldable"))));
+
 // ---------- featured chips ----------
 const featured = points.filter(p=>p.cat.key==="enterprise");
 document.getElementById("chips").innerHTML =
@@ -332,6 +372,7 @@ function setKind(k){
   kindFilter = (kindFilter===k) ? null : k;
   indEls.forEach(el=>{ el.classList.toggle("on", el.dataset.k===kindFilter); el.classList.toggle("dim", !!kindFilter && el.dataset.k!==kindFilter); });
   indClear.style.display = kindFilter ? "inline" : "none";
+  if(kindFilter) pin(document.getElementById("featured"), true);
   render(true);
 }
 indEls.forEach(el=>el.addEventListener("click",()=>setKind(el.dataset.k)));
@@ -528,7 +569,7 @@ chartEl.addEventListener("pointermove",ev=>{
   hoverQ = (q>=Q0 && q<=Q1) ? q : null; updateLabel(Math.floor(t));
 });
 chartEl.addEventListener("pointerleave",()=>{ hoverQ = null; updateLabel(Math.floor(t)); });
-window.addEventListener("resize", drawChart);
+new ResizeObserver(()=>drawChart()).observe(chartEl);   // redraw as the timeline panel opens/closes
 
 drawChart();
 // #2023 or #2023-06 opens at that month, #now skips the intro animation
