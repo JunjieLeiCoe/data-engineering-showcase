@@ -7,27 +7,38 @@
 <meta name="description" content="Junjie Lei — data engineering showcase: ETL & data pipelines for organizations across the US." />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;}
   html,body{height:100%;margin:0;font-family:'Inter',-apple-system,sans-serif;background:#0b0f1a;color:#e7ecf5;
     -webkit-tap-highlight-color:transparent;overscroll-behavior:none;}
-  #map{position:absolute;inset:0;background:#0b0f1a;}
+  #map{position:absolute;inset:0;background:#0b0f1a;--s:22px;}
   .leaflet-container{background:#0b0f1a;}
   .leaflet-tile{filter:saturate(1.05) brightness(1.02);}
 
-  .pulse{display:block;width:12px;height:12px;border-radius:50%;background:var(--c);
-    box-shadow:0 0 10px 2px var(--c);position:relative;}
-  .pulse::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--c);
-    opacity:.6;animation:ring 2.6s ease-out infinite;}
-  @keyframes ring{0%{transform:scale(.55);opacity:.75}100%{transform:scale(2.6);opacity:0}}
-
-  .star{display:block;width:22px;height:22px;line-height:22px;text-align:center;font-size:19px;
-    color:var(--c);text-shadow:0 0 8px var(--c),0 0 16px var(--c);animation:tw 3.2s ease-in-out infinite;}
-  @keyframes tw{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.18);opacity:1}}
-
-  .diamond{display:block;width:13px;height:13px;background:var(--c);transform:rotate(45deg);
-    box-shadow:0 0 10px 2px var(--c);border:1px solid rgba(255,255,255,.45);}
+  /* ---------- emoji markers ---------- */
+  .emk{position:absolute;left:0;top:0;width:var(--s);height:var(--s);transform:translate(-50%,-50%);
+    display:grid;place-items:center;transition:scale .15s;
+    animation:pop .6s cubic-bezier(.2,1.6,.4,1) backwards;}
+  .emk::before{content:"";position:absolute;inset:0;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.18),rgba(10,15,30,.92) 70%);
+    border:1.5px solid var(--c);box-shadow:0 0 9px -1px var(--c);}
+  .emk::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--c);opacity:0;
+    animation:ripple 1.2s ease-out .1s;}
+  .emk i{position:relative;font-style:normal;font-size:calc(var(--s) * .6);line-height:1;
+    font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.55));}
+  .emk.dia::before{border-radius:24%;transform:rotate(45deg) scale(.84);}
+  .emk.ent{width:calc(var(--s) * 1.4);height:calc(var(--s) * 1.4);}
+  .emk.ent::before{border-width:2px;animation:glow 3.2s ease-in-out infinite;}
+  .emk.ent i{font-size:calc(var(--s) * .74);}
+  .emk.ent b{position:absolute;right:-4px;top:-5px;font-size:calc(var(--s) * .5);color:#fbbf24;
+    text-shadow:0 0 6px #fbbf24;font-weight:400;}
+  .leaflet-marker-icon:hover .emk{scale:1.3;}
+  .still .emk,.still .emk::after{animation:none;}
+  @keyframes pop{0%{transform:translate(-50%,-50%) scale(0);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+  @keyframes ripple{0%{transform:scale(.7);opacity:.95}100%{transform:scale(3);opacity:0}}
+  @keyframes glow{0%,100%{box-shadow:0 0 10px var(--c)}50%{box-shadow:0 0 20px 3px var(--c)}}
 
   .panel{position:absolute;z-index:1000;background:rgba(16,22,40,.62);
     backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);
@@ -40,7 +51,12 @@
     background:linear-gradient(120deg,#fff,#9fc6ff 55%,#fbbf24);-webkit-background-clip:text;background-clip:text;color:transparent;}
   .title .sub{margin:9px 0 0;font-size:13px;line-height:1.55;color:#aebbd2;font-weight:300;}
 
-  .legend{bottom:22px;left:22px;padding:14px 16px;animation:rise 1s cubic-bezier(.2,.8,.2,1) both;}
+  /* bottom dock: legend + timeline side by side (stacked on phones) */
+  .dock{position:absolute;z-index:1000;left:22px;right:64px;bottom:22px;display:flex;align-items:flex-end;gap:16px;
+    pointer-events:none;}
+  .dock>.panel{position:relative;pointer-events:auto;}
+
+  .legend{flex:none;padding:14px 16px;animation:rise 1s cubic-bezier(.2,.8,.2,1) both;}
   .legend .hd{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#7f93b3;margin-bottom:10px;}
   .legend .row{display:flex;align-items:center;gap:11px;margin:7px 0;font-size:13px;color:#d4dcec;
     cursor:pointer;user-select:none;padding:3px 6px;border-radius:8px;transition:background .15s, opacity .15s;}
@@ -50,19 +66,60 @@
   .swatch{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:0 0 9px currentColor;}
   .legend .cnt{margin-left:auto;font-variant-numeric:tabular-nums;color:#8aa0c0;font-size:12px;padding-left:16px;}
   .legend .ft{margin-top:11px;border-top:1px solid rgba(255,255,255,.10);padding-top:9px;font-size:12px;color:#9fb0cc;}
-  .legend .ft b{color:#e7ecf5;font-weight:600;}
+  .legend .ft b{color:#e7ecf5;font-weight:600;font-variant-numeric:tabular-nums;}
 
-  .featured{top:22px;right:22px;padding:15px 17px;max-width:280px;animation:rise 1.1s cubic-bezier(.2,.8,.2,1) both;}
+  /* ---------- timeline ---------- */
+  .timeline{flex:1;max-width:680px;margin-left:auto;padding:12px 16px 8px;animation:rise 1.2s cubic-bezier(.2,.8,.2,1) both;}
+  .tl-top{display:flex;align-items:center;gap:14px;min-height:62px;}
+  .play{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid rgba(34,211,238,.45);cursor:pointer;
+    background:radial-gradient(circle at 35% 30%,rgba(34,211,238,.35),rgba(34,211,238,.08));color:#e8fbff;
+    display:grid;place-items:center;box-shadow:0 0 16px rgba(34,211,238,.25);transition:transform .15s, box-shadow .15s;}
+  .play:hover{transform:scale(1.07);box-shadow:0 0 22px rgba(34,211,238,.45);}
+  .play svg{width:16px;height:16px;fill:currentColor;}
+  .readout{display:flex;align-items:baseline;gap:7px;flex:none;width:118px;}
+  .readout .yr{font-size:30px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+    background:linear-gradient(120deg,#fff,#9fc6ff);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .readout .mo{font-size:12px;font-weight:600;letter-spacing:.14em;color:#7f93b3;}
+  .tl-count{flex:none;font-size:11px;color:#8aa0c0;line-height:1.3;letter-spacing:.04em;text-transform:uppercase;}
+  .tl-count b{display:block;font-size:20px;color:#e7ecf5;font-weight:700;letter-spacing:0;font-variant-numeric:tabular-nums;}
+  .ticker{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px;height:62px;overflow:hidden;
+    justify-content:center;}
+  .tick{font-size:11.5px;line-height:17px;color:#d4dcec;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+    padding:0 9px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);}
+  .tick.gold{color:#fde7b8;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.10);}
+  .tick i{font-style:normal;margin-right:5px;}
+  #tlChart{display:block;width:100%;height:64px;margin-top:6px;cursor:ew-resize;touch-action:none;overflow:visible;}
+  #tlChart .axis text{fill:#7f93b3;font:500 10px Inter,sans-serif;}
+  #tlChart .axis line{stroke:rgba(255,255,255,.12);}
+
+  .yearmark{position:absolute;z-index:450;right:76px;bottom:165px;pointer-events:none;
+    font-size:clamp(64px,9vw,140px);line-height:1;font-weight:800;letter-spacing:-.05em;color:#fff;opacity:.07;
+    font-variant-numeric:tabular-nums;}
+
+  .featured{top:22px;right:22px;padding:15px 17px;max-width:290px;animation:rise 1.1s cubic-bezier(.2,.8,.2,1) both;
+    max-height:calc(100vh - 230px);overflow:auto;}
   .featured .hd{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#d9b25a;margin-bottom:11px;display:flex;align-items:center;gap:7px;}
   .featured .hd::before{content:"★";color:#fbbf24;text-shadow:0 0 8px #fbbf24;}
-  .chips{display:flex;flex-wrap:wrap;gap:7px;max-height:46vh;overflow:auto;}
+  .featured .hd.ind{color:#7f93b3;margin-top:15px;}
+  .featured .hd.ind::before{content:none;}
+  .featured .hd.ind span{margin-left:auto;letter-spacing:.04em;text-transform:none;color:#22d3ee;cursor:pointer;display:none;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
   .chip{font-size:12px;color:#f3e6c4;background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.30);
-    padding:4px 10px;border-radius:20px;white-space:nowrap;}
+    padding:4px 10px;border-radius:20px;white-space:nowrap;transition:opacity .3s;}
+  .chip.later{opacity:.3;}
+  .ichip{font-size:12px;color:#d4dcec;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);
+    padding:3px 9px;border-radius:20px;white-space:nowrap;cursor:pointer;user-select:none;transition:all .15s;
+    font-variant-numeric:tabular-nums;}
+  .ichip:hover{background:rgba(255,255,255,.10);}
+  .ichip.on{background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.6);color:#e8fbff;}
+  .ichip.dim{opacity:.35;}
+  .ichip.zero{opacity:.25;}
 
   .leaflet-tooltip.tip{background:rgba(10,14,28,.92);border:1px solid rgba(255,255,255,.16);
-    color:#fff;border-radius:8px;font:500 12px Inter,sans-serif;padding:4px 9px;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+    color:#fff;border-radius:8px;font:500 12px Inter,sans-serif;padding:5px 10px;box-shadow:0 4px 16px rgba(0,0,0,.4);}
   .leaflet-tooltip.tip.gold{border-color:rgba(251,191,36,.55);color:#fde7b8;}
   .leaflet-tooltip.tip.cyan{border-color:rgba(34,211,238,.55);color:#bdf3fb;}
+  .leaflet-tooltip.tip small{display:block;color:#8aa0c0;font-weight:400;font-size:11px;margin-top:1px;}
   .leaflet-tooltip.tip::before{display:none;}
   .leaflet-control-attribution{background:rgba(11,15,26,.6)!important;color:#566!important;}
   .leaflet-control-attribution a{color:#7aa2d6!important;}
@@ -72,10 +129,13 @@
   @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
   /* ---------- Tablet / small laptop ---------- */
+  @media(max-width:1180px){
+    .ticker{display:none;}
+  }
   @media(max-width:980px){
     .title{max-width:300px;}
-    .featured{max-width:220px;padding:13px 14px;}
-    .chips{max-height:36vh;}
+    .featured{max-width:230px;padding:13px 14px;}
+    .yearmark{display:none;}
   }
 
   /* ---------- Phones (portrait) ---------- */
@@ -91,8 +151,19 @@
     /* the chips panel is the least essential — drop it on small screens */
     .featured{display:none;}
 
-    /* legend becomes a full-width bottom bar; sectors wrap into tappable pills */
-    .legend{left:10px;right:10px;bottom:10px;padding:11px 13px 12px;}
+    /* dock: timeline on top, legend as a full-width bar under it */
+    .dock{left:10px;right:10px;bottom:10px;flex-direction:column-reverse;align-items:stretch;gap:8px;}
+    .timeline{max-width:none;margin:0;padding:9px 12px 6px;}
+    .tl-top{gap:10px;min-height:36px;}
+    .ticker{display:none;}
+    .play{width:34px;height:34px;}
+    .readout{width:auto;}
+    .readout .yr{font-size:24px;}
+    .tl-count{margin-left:auto;text-align:right;}
+    .tl-count b{font-size:17px;}
+    #tlChart{height:44px;margin-top:4px;}
+
+    .legend{padding:11px 13px 12px;}
     .legend .hd{margin-bottom:8px;}
     #rows{display:flex;flex-wrap:wrap;gap:6px;}
     .legend .row{margin:0;padding:5px 9px;gap:7px;font-size:12px;
@@ -108,11 +179,13 @@
   @media(max-width:760px) and (max-height:480px){
     .title .sub{display:none;}
     .legend .ft{display:none;}
+    #tlChart{display:none;}
   }
 </style>
 </head>
 <body>
 <div id="map"></div>
+<div class="yearmark" id="yearmark"></div>
 
 <div class="panel title">
   <p class="eyebrow"></p>
@@ -123,20 +196,36 @@
 <div class="panel featured">
   <div class="hd">Featured Clients</div>
   <div class="chips" id="chips"></div>
+  <div class="hd ind">Industries <span id="indClear">show all</span></div>
+  <div class="chips" id="inds"></div>
 </div>
 
-<div class="panel legend">
-  <div class="hd">Sectors · tap to filter</div>
-  <div id="rows"></div>
-  <div class="ft"><b id="total">0</b> organizations mapped · <b id="statVal"></b> <span id="statLbl"></span></div>
+<div class="dock">
+  <div class="panel legend">
+    <div class="hd">Sectors · tap to filter</div>
+    <div id="rows"></div>
+    <div class="ft"><b id="total">0</b> organizations mapped · <b id="statVal"></b> <span id="statLbl"></span></div>
+  </div>
+
+  <div class="panel timeline">
+    <div class="tl-top">
+      <button class="play" id="play" aria-label="Play timeline"></button>
+      <div class="readout"><span class="yr" id="tlYear"></span><span class="mo" id="tlMon"></span></div>
+      <div class="tl-count"><b id="tlCount">0</b>clients</div>
+      <div class="ticker" id="ticker"></div>
+    </div>
+    <svg id="tlChart" aria-label="Clients over time — drag to scrub"></svg>
+  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script>document.write('<script src="data.js?v='+Math.floor(Date.now()/600000)+'"><\/script>')</script>
 <script>
 const D = window.SHOWCASE || {categories:[],meta:{}};
 const CATS = D.categories;
 const M = D.meta || {};
+const KINDS = D.kinds || {};
 
 // header text from data.js meta
 document.querySelector(".title .eyebrow").textContent = M.eyebrow || "";
@@ -153,52 +242,254 @@ L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key="
   attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:19, subdomains:"abcd"
 }).addTo(map);
 
-function pulseIcon(color){return L.divIcon({className:"",iconSize:[12,12],iconAnchor:[6,6],html:`<span class="pulse" style="--c:${color}"></span>`});}
-function starIcon(color){return L.divIcon({className:"",iconSize:[22,22],iconAnchor:[11,11],html:`<span class="star" style="--c:${color}">★</span>`});}
-function diamondIcon(color){return L.divIcon({className:"",iconSize:[15,15],iconAnchor:[7,7],html:`<span class="diamond" style="--c:${color}"></span>`});}
+// badge size follows zoom so the lower-48 view isn't a pile of emoji
+function sizeMarkers(){
+  const z = map.getZoom();
+  map.getContainer().style.setProperty("--s", (z < 4.75 ? 22 : z < 6 ? 25 : z < 8 ? 29 : 33) + "px");
+}
+map.on("zoomend", sizeMarkers);
 
-const layers={}, bounds=[], chips=[];
-let total=0;
+// ---------- time axis (one step per month) ----------
+const ym = s => { const [y,m] = String(s).split("-").map(Number); return y*12 + (m||1) - 1; };
+const ymLabel = i => ({ y: Math.floor(i/12), m: i%12 });
+const MON = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+const MON_TITLE = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const genIdx = ym((D.generatedAt || "").slice(0,7) || "2026-01");
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const points = [], layers = {}, bounds = [];
 CATS.forEach(c=>{
-  const grp=L.layerGroup();
+  layers[c.key] = L.layerGroup().addTo(map);
   (c.pts||[]).forEach(p=>{
-    const lat=p[0],lng=p[1],name=p[2],rec=p[3];
-    bounds.push([lat,lng]); total++;
-    let icon, tipClass;
-    if(c.key==="enterprise"){ icon=starIcon(c.color); tipClass="tip gold"; }
-    else if(c.key==="pipeline"){ icon=diamondIcon(c.color); tipClass="tip cyan"; }
-    else { icon=pulseIcon(c.color); tipClass="tip"; }
-    let label = c.named ? name : c.label;
-    if(c.named && rec) label = `${name} &middot; ${Number(rec).toLocaleString()} records`;
-    L.marker([lat,lng],{icon}).bindTooltip(label,{className:tipClass,direction:"top",offset:[0,-11]}).addTo(grp);
-    if(c.key==="enterprise") chips.push(name);
+    const at = p.at, name = p.name || null, rec = p.records;
+    const kind = p.kind || c.kind || "biz";
+    const emoji = p.emoji || (KINDS[kind] && KINDS[kind].emoji) || "📍";
+    const idx = p.since ? ym(p.since) : genIdx;
+    bounds.push(at);
+
+    let shape = "", extra = "", tipClass = "tip";
+    if(c.key==="enterprise"){ shape="ent"; extra="<b>★</b>"; tipClass="tip gold"; }
+    else if(c.key==="pipeline"){ shape="dia"; tipClass="tip cyan"; }
+    const icon = L.divIcon({className:"",iconSize:[0,0],
+      html:`<span class="emk ${shape}" style="--c:${c.color}"><i>${emoji}</i>${extra}</span>`});
+
+    let label = c.named && name ? `${emoji} <b>${esc(name)}</b>` : `${emoji} ${esc(c.label)}`;
+    if(c.named && rec) label += ` &middot; ${Number(rec).toLocaleString()} records`;
+    if(p.since && !p.est){ const d = ymLabel(idx); label += `<small>first pipeline ${MON_TITLE[d.m]} ${d.y}</small>`; }
+
+    const marker = L.marker(at,{icon, riseOnHover:true, zIndexOffset: c.key==="enterprise" ? 1000 : 0})
+      .bindTooltip(label,{className:tipClass,direction:"top",offset:[0,-12]});
+    points.push({ cat:c, kind, emoji, name, idx, marker, shown:false });
   });
-  grp.addTo(map); layers[c.key]=grp;
 });
+const START = Math.floor(Math.min(...points.map(p=>p.idx))/12)*12;   // January of the first year
+const END = Math.max(genIdx, ...points.map(p=>p.idx));
+const PLAY_FROM = Math.min(...points.map(p=>p.idx)) - 1;
 
 // default to the continental US (exclude Alaska/outliers so the lower-48 fills the screen)
 const usBounds = bounds.filter(b => b[1] > -130 && b[0] < 50);
-function fitUS(){ if(usBounds.length) map.fitBounds(usBounds,{padding:[12,12]}); }
+function fitUS(){ if(usBounds.length) map.fitBounds(usBounds,{padding:[12,12]}); sizeMarkers(); }
 fitUS(); window.addEventListener("resize", fitUS);
 
-document.getElementById("chips").innerHTML = chips.map(n=>`<span class="chip">${n}</span>`).join("");
+// ---------- featured chips ----------
+const featured = points.filter(p=>p.cat.key==="enterprise");
+document.getElementById("chips").innerHTML =
+  featured.map((p,i)=>`<span class="chip" data-i="${i}">${p.emoji} ${esc(p.name)}</span>`).join("");
+const chipEls = [...document.querySelectorAll("#chips .chip")];
 
+// ---------- legend ----------
 const rows=document.getElementById("rows");
 rows.innerHTML = CATS.map(c=>{
   let mark;
   if(c.key==="enterprise") mark=`<span style="color:${c.color};text-shadow:0 0 8px ${c.color};font-size:13px;width:11px;text-align:center">★</span>`;
   else if(c.key==="pipeline") mark=`<span style="width:10px;height:10px;background:${c.color};transform:rotate(45deg);box-shadow:0 0 8px ${c.color};flex:none;display:inline-block;margin:0 1px"></span>`;
   else mark=`<span class="swatch" style="background:${c.color}"></span>`;
-  return `<div class="row" data-k="${c.key}" style="color:${c.color}">${mark}<span style="color:#d4dcec">${c.label}</span><span class="cnt">${(c.pts||[]).length}</span></div>`;
+  return `<div class="row" data-k="${c.key}" style="color:${c.color}">${mark}<span style="color:#d4dcec">${c.label}</span><span class="cnt" data-k="${c.key}">0</span></div>`;
 }).join("");
-document.getElementById("total").textContent = total;
-
+const layerOn = Object.fromEntries(CATS.map(c=>[c.key,true]));
 rows.querySelectorAll(".row").forEach(row=>{
   row.addEventListener("click",()=>{
-    const k=row.dataset.k, on=row.classList.toggle("off");
-    if(on) map.removeLayer(layers[k]); else layers[k].addTo(map);
+    const k=row.dataset.k;
+    layerOn[k] = !row.classList.toggle("off");
+    render(true);
   });
 });
+
+// ---------- industry chips ----------
+const kindTotals = d3.rollup(points, v=>v.length, p=>p.kind);
+const kindOrder = [...kindTotals.keys()].sort((a,b)=>kindTotals.get(b)-kindTotals.get(a));
+let kindFilter = null;
+const indBox = document.getElementById("inds"), indClear = document.getElementById("indClear");
+indBox.innerHTML = kindOrder.map(k=>{
+  const K = KINDS[k] || {emoji:"📍",label:k};
+  return `<span class="ichip" data-k="${k}" title="${esc(K.label)}">${K.emoji} <span>0</span></span>`;
+}).join("");
+const indEls = [...indBox.querySelectorAll(".ichip")];
+function setKind(k){
+  kindFilter = (kindFilter===k) ? null : k;
+  indEls.forEach(el=>{ el.classList.toggle("on", el.dataset.k===kindFilter); el.classList.toggle("dim", !!kindFilter && el.dataset.k!==kindFilter); });
+  indClear.style.display = kindFilter ? "inline" : "none";
+  render(true);
+}
+indEls.forEach(el=>el.addEventListener("click",()=>setKind(el.dataset.k)));
+indClear.addEventListener("click",()=>setKind(kindFilter));
+
+// ---------- timeline chart (D3 stacked area of cumulative clients) ----------
+const months = d3.range(START, END+1);
+const keys = CATS.map(c=>c.key);
+const color = Object.fromEntries(CATS.map(c=>[c.key,c.color]));
+const cum = months.map(m=>{
+  const row = {m};
+  keys.forEach(k=>row[k]=0);
+  points.forEach(p=>{ if(p.idx<=m) row[p.cat.key]++; });
+  return row;
+});
+const series = d3.stack().keys(keys)(cum);
+const svg = d3.select("#tlChart");
+const defs = svg.append("defs");
+const clip = defs.append("clipPath").attr("id","tlClip").append("rect").attr("y",-20);
+CATS.forEach(c=>{
+  const g = defs.append("linearGradient").attr("id","g-"+c.key).attr("x1",0).attr("x2",0).attr("y1",0).attr("y2",1);
+  g.append("stop").attr("offset","0%").attr("stop-color",c.color).attr("stop-opacity",.95);
+  g.append("stop").attr("offset","100%").attr("stop-color",c.color).attr("stop-opacity",.35);
+});
+const gDim = svg.append("g").attr("opacity",.16);
+const gLit = svg.append("g").attr("clip-path","url(#tlClip)");
+const gAxis = svg.append("g").attr("class","axis");
+const head = svg.append("g").attr("pointer-events","none");
+const headLine = head.append("line").attr("stroke","#e8fbff").attr("stroke-width",1.2).attr("stroke-opacity",.8);
+const headDot = head.append("circle").attr("r",4).attr("fill","#fff")
+  .style("filter","drop-shadow(0 0 5px #22d3ee) drop-shadow(0 0 2px #22d3ee)");
+let x, y;
+
+function drawChart(){
+  const el = document.getElementById("tlChart");
+  const W = el.clientWidth, H = el.clientHeight, padB = 15, padT = 6;
+  if(!W || !H) return;
+  x = d3.scaleLinear().domain([START, END]).range([0, W]);
+  y = d3.scaleLinear().domain([0, points.length]).range([H-padB, padT]);
+  const area = d3.area().x(d=>x(d.data.m)).y0(d=>y(d[0])).y1(d=>y(d[1])).curve(d3.curveMonotoneX);
+  [gDim, gLit].forEach(g=>g.selectAll("path").data(series).join("path")
+    .attr("fill",d=>`url(#g-${d.key})`).attr("d",area));
+  clip.attr("height",H+40);
+  const years = d3.range(Math.ceil(START/12), Math.floor(END/12)+1);
+  gAxis.attr("transform",`translate(0,${H-padB})`).selectAll("g").data(years).join(enter=>{
+    const g = enter.append("g"); g.append("line"); g.append("text"); return g;
+  }).attr("transform",d=>`translate(${x(d*12)},0)`)
+    .call(g=>g.select("line").attr("y1",0).attr("y2",4))
+    .call(g=>g.select("text").attr("y",13).attr("text-anchor",d=>x(d*12)<12?"start":"middle").text(d=>d));
+  headLine.attr("y1",padT-4).attr("y2",H-padB);
+  updateHead();
+}
+
+// ---------- state + render ----------
+let t = END;                 // continuous playhead (months)
+let lastMonth = null;
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function updateHead(){
+  if(!x) return;
+  const tx = x(Math.min(t, END));
+  clip.attr("width", Math.max(0, tx));
+  headLine.attr("x1",tx).attr("x2",tx);
+  const m = Math.max(START, Math.min(END, Math.floor(t)));
+  const row = cum[m-START];
+  headDot.attr("cx",tx).attr("cy",y(keys.reduce((s,k)=>s+row[k],0)));
+}
+
+const tickerBox = d3.select("#ticker");
+function render(force){
+  const m = Math.floor(t);
+  updateHead();
+  if(m===lastMonth && !force) return;
+  lastMonth = m;
+
+  const byCat = {}, byKind = {};
+  let inTime = 0;
+  points.forEach(p=>{
+    const live = p.idx <= m;
+    if(live){ inTime++; byCat[p.cat.key]=(byCat[p.cat.key]||0)+1; byKind[p.kind]=(byKind[p.kind]||0)+1; }
+    const show = live && layerOn[p.cat.key] && (!kindFilter || p.kind===kindFilter);
+    if(show!==p.shown){ show ? layers[p.cat.key].addLayer(p.marker) : layers[p.cat.key].removeLayer(p.marker); p.shown=show; }
+  });
+
+  const d = ymLabel(Math.max(START, Math.min(END, m)));
+  document.getElementById("tlYear").textContent = d.y;
+  document.getElementById("tlMon").textContent = MON[d.m];
+  document.getElementById("yearmark").textContent = d.y;
+  document.getElementById("tlCount").textContent = inTime;
+  document.getElementById("total").textContent = inTime;
+  rows.querySelectorAll(".cnt").forEach(el=>el.textContent = byCat[el.dataset.k]||0);
+  indEls.forEach(el=>{ const n = byKind[el.dataset.k]||0; el.lastElementChild.textContent = n; el.classList.toggle("zero", !n); });
+  chipEls.forEach((el,i)=>el.classList.toggle("later", featured[i].idx > m));
+
+  // newest named clients at this point in time
+  const recent = points.filter(p=>p.name && p.idx<=m).sort((a,b)=>b.idx-a.idx).slice(0,3);
+  tickerBox.selectAll(".tick").data(recent, p=>p.name).join(
+    enter=>enter.append("div").attr("class",p=>"tick"+(p.cat.key==="enterprise"?" gold":""))
+      .html(p=>`<i>${p.emoji}</i>${esc(p.name)}`)
+      .style("opacity",0).style("transform","translateX(14px)")
+      .call(e=>e.transition().duration(450).style("opacity",1).style("transform","translateX(0)")),
+    update=>update,
+    exit=>exit.remove()
+  ).order();
+}
+
+// ---------- playback ----------
+const playBtn = document.getElementById("play");
+const ICON = {
+  play:  '<svg viewBox="0 0 16 16"><path d="M4 2.5v11l9.5-5.5z"/></svg>',
+  pause: '<svg viewBox="0 0 16 16"><path d="M3.5 2h3v12h-3zM9.5 2h3v12h-3z"/></svg>',
+  replay:'<svg viewBox="0 0 16 16"><path d="M8 2.5a5.5 5.5 0 1 1-5.2 3.7l1.6.6A3.8 3.8 0 1 0 8 4.2V6L4.8 3.4 8 .8z"/></svg>'
+};
+let timer = null;
+const MONTHS_PER_SEC = 5.5;
+function setBtn(){
+  const state = timer ? "pause" : (t >= END ? "replay" : "play");
+  playBtn.innerHTML = ICON[state];
+  playBtn.setAttribute("aria-label", state==="pause" ? "Pause timeline" : "Play timeline");
+}
+function play(){
+  if(t >= END) t = PLAY_FROM;
+  map.getContainer().classList.remove("still");
+  const t0 = t; let start = null;
+  timer = d3.timer(el=>{
+    if(start===null) start = el;
+    t = Math.min(END, t0 + (el-start)/1000*MONTHS_PER_SEC);
+    render();
+    if(t >= END){ stop(); }
+  });
+  setBtn();
+}
+function stop(){ if(timer){ timer.stop(); timer=null; } setBtn(); }
+playBtn.addEventListener("click",()=> timer ? stop() : play());
+
+// scrub by dragging on the chart
+function scrub(ev){
+  if(!x) return;
+  const r = ev.currentTarget.getBoundingClientRect();
+  t = Math.max(START, Math.min(END, x.invert(ev.clientX - r.left)));
+  t = Math.round(t); render(); setBtn();
+}
+const chartEl = document.getElementById("tlChart");
+chartEl.addEventListener("pointerdown",ev=>{ stop(); chartEl.setPointerCapture(ev.pointerId); scrub(ev); });
+chartEl.addEventListener("pointermove",ev=>{ if(chartEl.hasPointerCapture(ev.pointerId)) scrub(ev); });
+window.addEventListener("resize", drawChart);
+
+drawChart();
+// #2023 or #2023-06 opens at that month, #now skips the intro animation
+const jump = location.hash.match(/^#(\d{4})(?:-(\d{2}))?$/);
+if(jump){
+  t = Math.max(START, Math.min(END, ym(`${jump[1]}-${jump[2] || "12"}`)));
+  map.getContainer().classList.add("still"); render(true); setBtn();
+}else if(reduceMotion || location.hash==="#now"){
+  map.getContainer().classList.add("still");
+  t = END; render(true); setBtn();
+}else{
+  t = PLAY_FROM; render(true); setBtn();
+  setTimeout(play, 900);
+}
 </script>
 </body>
 </html>
