@@ -73,9 +73,9 @@ The `showcase-map` skill does the whole loop: diff r-workspace folders against `
 - The default view fits the lower 48 only (Alaska and outliers are excluded from the bounds on purpose).
 - **Basemap:** CARTO `dark_all` raster tiles with the key in `CARTO_KEY`. Since September 2026 CARTO returns an "API KEY REQUIRED" placeholder tile (HTTP 200, so no tile error fires) when the key is missing or invalid. The key is necessarily visible to anyone loading the page; the free tier is 5M requests/month for non-commercial use. Esri's keyless Dark Gray Canvas was tried as a replacement and rejected: lighter gray, and noticeably slower.
 
-## Current data state (2026-10-23)
+## Current data state (2026-10-28)
 
-197 markers: municipal 19, county 8, education 26, agency 6, enterprise 7, pipeline 131. By first-pipeline year: 2021 10, 2022 16, 2023 25, 2024 30, 2025 48, 2026 68 (2021–2024 includes the placeholder public-sector dates).
+200 markers: municipal 19, county 8, education 26, agency 6, enterprise 7, pipeline 134. By first-pipeline year: 2021 10, 2022 16, 2023 25, 2024 30, 2025 48, 2026 71 (2021–2024 includes the placeholder public-sector dates).
 
 Locations worth a second look:
 
@@ -86,4 +86,7 @@ Locations worth a second look:
 - City of Sanger — appears twice: the older anonymous municipal dot and the new named pipeline diamond (nudged north).
 - HealthQuest Therapeutics — Houston, TX from the data (704 of 1,798 rows), nudged off Taqueria La Reyna's exact point.
 - LD Solutions — Denver, CO (FirstLight Home Care of Denver), nudged off Colorado Security Agency's exact point.
+- Tibor Inc — San Bernardino, CA (security guard firm, trades as Tibor Protection). Location from a directory listing; employees cluster around Redlands / Yucaipa / San Bernardino.
+- Silverstone Management — Lakewood, NJ (HubSpot), nudged north off Royal Community Support. Most employees are in TX.
+- `JR_Furniture` is deliberately NOT in `knownFolders`: as of 2026-10-28 it holds only a CLAUDE.md, no script. The next run will pick it up once a CLNraw exists.
 - Aveena's Loving Companion Care — moved from Chantilly, VA to Jamaica, Queens, NY (HubSpot company record + 39K of 48K rows are NY).
